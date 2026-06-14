@@ -4,5 +4,7 @@ We have Finished organizing the code for generating the syndrome empirical dista
 - **Lines 630 and 631** correspond to the parameters `num` and `main_num` respectively:
   - `num`: The number of error samples per parity-check matrix $H$ (used for plotting a single distance spectrum).
   - `main_num`: The total number of experiments (i.e., how many distance spectra are generated for different keys).
+
 The rest will be available soon...
+
 Pipeline subsequent updates...
