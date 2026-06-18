@@ -2,7 +2,7 @@
 
 Environment dependencies refer to  `requirements.txt `
 
-This code is only applicable to idealized simulation experiments. The core experimental data (e.g., wt(e_0h_0+e_1h_1)) are assumed to be available without additional calculation.
+This code is only applicable to idealized simulation experiments. The core experimental data (e.g., `wt(e_0h_0+e_1h_1)`) are assumed to be available without additional calculation.
 
 The implementation logic of `SHAKE256.cpp` is referenced from the BIKE: Bit Flipping Key Encapsulation(https://bikesuite.org) technical report, adopting a modified variant of the Fisher-Yates shuffling algorithm. The pseudo-random number generator (PRNG) is initialized via the SHAKE256 algorithm. Notably, the core computational function `f(e_0, h_0) = wt(e_0h_0+e_1h_1)` in this experiment does not rely on a decoder. Accordingly, the code in `decoder.cpp` is not invoked during experiments and is retained only for backup.
 
