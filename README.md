@@ -2,7 +2,7 @@
 
 Environment dependencies refer to  `requirements.txt `
 
-This code is only applicable to idealized simulation experiments. The core experimental data (e.g., `wt(e_0h_0+e_1h_1)`) are assumed to be available without additional calculation.
+This code is only applicable to idealized simulation experiments. The core experimental data (e.g., wt(e_0h_0+e_1h_1)) are assumed to be available without additional calculation.
 
 The implementation logic of `SHAKE256.cpp` is referenced from the BIKE: Bit Flipping Key Encapsulation(https://bikesuite.org) technical report, adopting a modified variant of the Fisher-Yates shuffling algorithm. The pseudo-random number generator (PRNG) is initialized via the SHAKE256 algorithm. Notably, the core computational function `f(e_0, h_0) = wt(e_0h_0+e_1h_1)` in this experiment does not rely on a decoder. Accordingly, the code in `decoder.cpp` is not invoked during experiments and is retained only for backup.
 
@@ -25,15 +25,21 @@ All fundamental experimental parameters are configured in the `main` function at
 By modifying the code at Line 675 of `syndrome_distance_spectrum.cpp`, the generation modes of `H[0]` and `H[1]` can be customized to construct different types of keys. The specific corresponding rules are listed below:
 
 - Type 1 Weak Key & Corresponding Random Key
+  
   Type 1 weak key: `H[0] = generate_weak1_poly(r, d, f, exp_seed + "|H[0]")`
+  
   Corresponding random key: `H_[0] = generate_random_poly(r, d, exp_seed + "|H[0]")`
   
 - (m, 0)-gather Weak Key & Corresponding Random Key
+  
   (m, 0)-gather weak key: `generate_m_cluster_poly_0_phi(r, d, m, exp_seed + "|H[0]")`
+  
   Corresponding random key: `generate_random_poly_not_m_cluster_0_phi(r, d, m, exp_seed + "|H[0]")`
   
 - (m, 1)-gather Weak Key & Corresponding Random Key
+  
   (m, 1)-gather weak key: `generate_m_cluster_poly_1_phi(r, d, m, exp_seed + "|H[0]")`
+  
   Corresponding random key: `generate_random_poly_not_m_cluster_1_phi(r, d, m, exp_seed + "|H[0]")`
 
 ---
@@ -73,3 +79,28 @@ Adjust the standard deviation of Gaussian noise `N(0, sigma)` by modifying the `
 ### 4. Supplementary Notes
 
 The entire experimental process currently lacks automated pipeline support. All experiments require manual parameter modification and script switching for stepwise execution. We apologize for any inconvenience.
+
+---
+# Run & Compilation Environment
+
+### 1. Operating System
+Windows 10 / Windows 11
+
+### 2. C++ Compilation Toolchain
+MSYS2 UCRT64 Toolchain
+
+g++ version 13.2.0 (Rev3, Built by MSYS2 project)
+
+Target: x86_64-w64-mingw32
+
+Thread model: posix
+
+### 3. Python Environment
+
+Python Version: Python 3.12.9
+
+CUDA Version: 11.7 (Built-in runtime with PyTorch)
+
+Command to install Python dependencies:
+
+pip install -r requirements.txt
