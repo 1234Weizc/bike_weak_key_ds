@@ -1,10 +1,65 @@
-We have Finished organizing the code for generating the syndrome empirical distance spectra for both specific keys and random keys.
-- Modify **Lines 625 and 626** to set the block length for Type 1 weak keys and the clustering interval *m* for m-gather weak keys.
-- Adjust **Line 673 or 674** to define the key type of $h_0$ and $h_1$: both can be set as random keys, or $h_i$ as a Type 1 weak key, or $h_i$ as a m-gather key, i=0 or 1.
-- **Lines 630 and 631** correspond to the parameters `num` and `main_num` respectively:
-  - `num`: The number of error samples per parity-check matrix $H$ (used for plotting a single distance spectrum).
-  - `main_num`: The total number of experiments (i.e., how many distance spectra are generated for different keys).
+# Code Experiment Operation Manual
 
-The rest will be available soon...
+This code is only applicable to idealized simulation experiments. The core experimental data (e.g., `wt(e_0h_0+e_1h_1)`) are assumed to be available without additional calculation.
 
-Pipeline subsequent updates...
+The implementation logic of `SHAKE256.cpp` is referenced from the BIKE: Bit Flipping Key Encapsulation(https://bikesuite.org) technical report, adopting a modified variant of the Fisher-Yates shuffling algorithm. The pseudo-random number generator (PRNG) is initialized via the SHAKE256 algorithm. Notably, the core computational function `f(e_0, h_0) = wt(e_0h_0+e_1h_1)` in this experiment does not rely on a decoder. Accordingly, the code in `decoder.cpp` is not invoked during experiments and is retained only for backup.
+
+The following presents the complete manual operation procedure for the code experiments.
+---
+### 1. Core Parameter Description
+
+All fundamental experimental parameters are configured in the `main` function at Line 624 of `syndrome_distance_spectrum.cpp`. The detailed definitions of each parameter are as follows:
+
+- f: Block length of Type 1 weak keys
+- m: Cluster window length for `(m, ε)` clustered weak keys
+- sigma: Standard deviation of Gaussian noise superimposed on syndrome weights (noise distribution: `N(0, sigma)`)
+- num: Number of error samples corresponding to a single parity-check matrix `H`
+- main_num: Total number of experiments, i.e., the number of randomly generated distinct parity-check matrices `H=(h0,h1)`
+---
+### 2. Key Generation Rules
+
+By modifying the code at Line 675 of `syndrome_distance_spectrum.cpp`, the generation modes of `H[0]` and `H[1]` can be customized to construct different types of keys. The specific corresponding rules are listed below:
+
+- Type 1 Weak Key & Corresponding Random Key
+  Type 1 weak key: `H[0] = generate_weak1_poly(r, d, f, exp_seed + "|H[0]")`
+  Corresponding random key: `H_[0] = generate_random_poly(r, d, exp_seed + "|H[0]")`
+  
+- (m, 0) Clustered Weak Key & Corresponding Random Key
+  (m, 0) clustered weak key: `generate_m_cluster_poly_0_phi(r, d, m, exp_seed + "|H[0]")`
+  Corresponding random key: `generate_random_poly_not_m_cluster_0_phi(r, d, m, exp_seed + "|H[0]")`
+  
+- (m, 1) Clustered Weak Key & Corresponding Random Key
+  (m, 1) clustered weak key: `generate_m_cluster_poly_1_phi(r, d, m, exp_seed + "|H[0]")`
+  Corresponding random key: `generate_random_poly_not_m_cluster_1_phi(r, d, m, exp_seed + "|H[0]")`
+---
+### 3. Step-by-Step Experimental Procedures for Each Case
+
+#### Case 1: Valley Feature Recognition of Type 1 Weak Keys
+
+1. Run `syndrome_distance_spectrum.cpp` to generate Type 1 weak key data with block lengths of `f=30, 31, 32, 33, 34`. A total of 10,000 keys are generated for each block length, with `num=80,000` error samples per key to construct the syndrome distance spectrum.
+2. Modify the data storage path defined by `file_templates` at Line 532 of `CNN_DS.py`.
+3. Execute `CNN_DS.py` to complete the experiment.
+---
+#### Case 2: Type 1 Weak Key Recovery via Depth-First Search Based on Valley Features
+
+The data generation procedure is identical to Case 1. An additional parameter modification is required: set `function = 1` at Line 524 of `CNN_DS.py`. After modification, run `CNN_DS.py` to implement weak key recovery.
+---
+#### Case 3: Recognition of Clustered Weak Keys
+
+1. Run `syndrome_distance_spectrum.cpp` to generate`(m=5100, 1)` clustered weak keys and their corresponding random control keys, with 10,000 samples for each key type. Each key is paired with `num=50,000` error samples for distance spectrum generation.
+2. Modify the data invocation paths at Lines 604 and 605 of `m_gather_recognition.py`.
+3. Run `m_gather_recognition.py` to complete the clustered weak key recognition experiment.
+---
+#### Case 4: Ablation Experiment
+
+The ablation experiment is implemented in `ablation_spectrum_binary.py`. The model corresponding to the parameter `ablation_name = "plain_cnn_no_dilation_no_res"` at Line 53 is the optimal generalization model. Trained on distance spectra generated from 50,000 error vectors, this model achieves the best overall generalization performance when applied to distance spectrum sequences generated by 40,000 and 30,000 error vectors.
+
+Experimental procedure: Modify the data invocation paths at Lines 782 and 783 of `ablation_spectrum_binary.py`, then execute the script to complete the ablation experiment.
+---
+#### Case 5: Noisy Data Experiment
+
+Adjust the standard deviation of Gaussian noise `N(0, sigma)` by modifying the `sigma` parameter at Line 631 of`syndrome_distance_spectrum.cpp` to generate syndrome distance spectrum data with different noise intensities. The subsequent experimental procedure is completely consistent with Case 3.
+---
+### 4. Supplementary Notes
+
+The entire experimental process currently lacks automated pipeline support. All experiments require manual parameter modification and script switching for stepwise execution. We apologize for any inconvenience.
