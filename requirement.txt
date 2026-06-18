@@ -1,0 +1,7 @@
+numpy==1.23.5
+torch==2.0.0+cu117
+torchvision==0.15.1+cu117
+scipy==1.10.1
+pillow==11.3.0
+tqdm==4.67.3
+typing-extensions==4.15.0
